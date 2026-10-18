@@ -1,12 +1,18 @@
 from django.shortcuts import render
 from rest_framework import generics, permissions,status
-from .serializers import UserSerializer,PhoneTokenSerializer
+from .serializers import UserSerializer,PhoneTokenSerializer,ProfileSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from .models import Profile
+from django.db import models
+from django.db.models import Q
+
+
+
 
 
 class RegisterView(generics.CreateAPIView):
@@ -56,5 +62,75 @@ class LogoutView(APIView):
         except Exception:
 
             return Response({'detail': 'Invalid or expired refresh token.'},status=status.HTTP_400_BAD_REQUEST)
+
+class ProfileListCreateView(generics.ListCreateAPIView):
+    serializer_class = ProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                'search',
+                openapi.IN_QUERY,
+                description='Поиск по имени, фамилии или username',
+                type=openapi.TYPE_STRING,
+                required=False
+            )
+        ]
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        search = self.request.query_params.get('search', '')
+
+        profiles = Profile.objects.all()
+
+        if search:
+            profiles = profiles.filter(
+                Q(firstname__icontains=search) |
+                Q(lastname__icontains=search) |
+                Q(username__icontains=search)
+            )
+
+        return profiles
+
+    def perform_create(self, serializer):
+        serializer.save(user_id=self.request.user)
+
+
+class ProfileDetail(generics.RetrieveAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class MyProfileUpdate(generics.UpdateAPIView):
+    serializer_class = ProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return Profile.objects.get(user_id = self.request.user)
+
+
+class ProfileSearchView(generics.ListAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        search = self.request.query_params.get('search')
+
+        profiles = Profile.objects.all()
+
+        if search:
+            profiles = profiles.filter(
+                models.Q(firstname__icontains=search) |
+                models.Q(lastname__icontains=search) |
+                models.Q(username__icontains=search)
+            )
+
+        return profiles
+
 
 

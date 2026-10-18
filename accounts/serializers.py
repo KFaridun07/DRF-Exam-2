@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
-from .models import User
+from .models import User,Profile
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
@@ -23,3 +23,11 @@ class UserSerializer(ModelSerializer):
 
 class PhoneTokenSerializer(TokenObtainPairSerializer):
     username_field = 'phone'
+
+
+class ProfileSerializer(ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['id','user_id','firstname','lastname','username','bio']
+        read_only_fields = ['id','user_id']
+

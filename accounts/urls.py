@@ -24,6 +24,10 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view()),
     path('me/', MeView.as_view()),
     path('logout/', LogoutView.as_view()),
+    path('profiles/',ProfileListCreateView.as_view()),
+    path('profile/<int:pk>',ProfileDetail.as_view()),
+    path('profiles/me',MyProfileUpdate.as_view()),
+
 
 
     re_path(
