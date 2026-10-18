@@ -27,6 +27,9 @@ urlpatterns = [
     path('profiles/',ProfileListCreateView.as_view()),
     path('profile/<int:pk>',ProfileDetail.as_view()),
     path('profiles/me',MyProfileUpdate.as_view()),
+    path('avatars/',AvatarCreate.as_view()),
+    path('avatars/my/', MyAvatarList.as_view()),
+    path('avatars/<int:pk>/delete/',MyAvatarDelete.as_view()),
 
 
 

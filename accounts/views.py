@@ -1,15 +1,16 @@
 from django.shortcuts import render
 from rest_framework import generics, permissions,status
-from .serializers import UserSerializer,PhoneTokenSerializer,ProfileSerializer
+from .serializers import UserSerializer,PhoneTokenSerializer,ProfileSerializer,AvatarSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from .models import Profile
+from .models import Profile,Avatar
 from django.db import models
 from django.db.models import Q
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 
@@ -131,6 +132,41 @@ class ProfileSearchView(generics.ListAPIView):
             )
 
         return profiles
+
+class AvatarCreate(generics.CreateAPIView):
+    serializer_class = AvatarSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+
+    def perform_create(self, serializer):
+        profile = Profile.objects.get(user_id=self.request.user)
+        serializer.save(profile=profile)
+
+
+class MyAvatarList(generics.ListAPIView):
+    serializer_class = AvatarSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        profile = Profile.objects.get(user_id = self.request.user)
+        return Avatar.objects.filter(profile = profile)
+
+
+class MyAvatarDelete(generics.DestroyAPIView):
+    serializer_class = AvatarSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Avatar.objects.none()
+
+        profile = Profile.objects.get(user_id=self.request.user)
+        return Avatar.objects.filter(profile=profile)
+
+
+
+
 
 
 
