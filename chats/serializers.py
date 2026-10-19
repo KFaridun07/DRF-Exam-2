@@ -9,4 +9,10 @@ class ChatSerializer(ModelSerializer):
         fields = ['id','user_1','user_2','cr_at']
         read_only_fields = ['id','user_1']
 
+class MessageSerializer(ModelSerializer):
+    class Meta:
+        model = Message
+        fields = ['id','sender','chat','content','cr_at']
+        read_only_fields = ['id', 'chat', 'sender', 'cr_at']
+
 

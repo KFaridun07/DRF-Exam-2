@@ -2,8 +2,8 @@ from django.shortcuts import render
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework.exceptions import ValidationError
-from .serializers import ChatSerializer
-from .models import Chat
+from .serializers import ChatSerializer,MessageSerializer
+from .models import Chat,Message
 from django.db import models
 from django.db.models import Q
 
@@ -62,6 +62,51 @@ class ChatDelete(generics.DestroyAPIView):
         user = self.request.user
 
         return Chat.objects.filter(models.Q(user_1=user) | models.Q(user_2=user))
+
+class MessageCreate(generics.CreateAPIView):
+    serializer_class = MessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Message.objects.none()
+
+        return Message.objects.none()
+
+    def perform_create(self, serializer):
+        chat_id = self.kwargs['chat_id']
+        chat = Chat.objects.filter(Q(user_1=self.request.user) | Q(user_2=self.request.user),id=chat_id).first()
+
+        if not chat:
+            raise ValidationError('Chat ne nayden')
+        serializer.save(chat = chat,sender = self.request.user)
+
+
+class MessageList(generics.ListAPIView):
+    serializer_class = MessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        chat_id = self.kwargs['chat_id']
+
+        chat = Chat.objects.filter(models.Q(user_1=self.request.user) |models.Q(user_2=self.request.user),id=chat_id).first()
+
+        if not chat:
+            raise ValidationError('Chat ne nayden')
+
+        return Message.objects.filter(chat=chat).order_by('cr_at')
+
+
+
+class MessageDeleteView(generics.DestroyAPIView):
+    serializer_class = MessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Message.objects.none()
+
+        return Message.objects.filter(sender=self.request.user)
 
 
 
