@@ -14,3 +14,11 @@ class Channel(models.Model):
     type = models.CharField(max_length=10,choices=TYPE_CHOICES,default='public')
     link = models.CharField(max_length=100, unique=True, blank=True)
     cr_at = models.DateTimeField(auto_now_add=True)
+
+
+class ChannelFollow(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='channel_follows')
+    channel = models.ForeignKey(Channel,on_delete=models.CASCADE,related_name='followers')
+    cr_at = models.DateTimeField(auto_now_add=True)
+
+
