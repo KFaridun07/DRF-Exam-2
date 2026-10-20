@@ -22,3 +22,13 @@ class ChannelFollow(models.Model):
     cr_at = models.DateTimeField(auto_now_add=True)
 
 
+class ChannelPost(models.Model):
+    channel = models.ForeignKey(Channel,on_delete=models.CASCADE,related_name='posts')
+    title = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    content = models.TextField()
+    cr_at = models.DateTimeField(auto_now_add=True)
+
+
+
+
