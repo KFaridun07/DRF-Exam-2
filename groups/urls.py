@@ -9,5 +9,8 @@ urlpatterns = [
     path('<int:group_id>/memberslist/', GroupMemberListView.as_view()),
     path('<int:group_id>/members/<int:pk>/',GroupMemberUpdateView.as_view()),
     path('members/<int:pk>/delete/', GroupMemberDeleteView.as_view()),
+    path('<int:group_id>/messages/', GroupMessageCreateView.as_view()),
+    path('<int:group_id>/messageslist/', GroupMessageListView.as_view()),
+    path('group-messages/<int:pk>/delete/', GroupMessageDeleteView.as_view()),
 
 ]

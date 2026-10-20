@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from rest_framework import generics,permissions
 from .models import Group,GroupMessage,GroupMember
-from .serializers import GroupSerializer,GroupMemberSerializer,GroupMemberRoleSerializer
+from .serializers import GroupSerializer,GroupMemberSerializer,GroupMemberRoleSerializer,GroupMessageSerializer
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import NotFound
 
 # Create your views here.
 
@@ -121,6 +122,49 @@ class GroupMemberDeleteView(generics.DestroyAPIView):
             raise PermissionDenied('Vladelets ne mojet viyti iz gruppi')
 
         instance.delete()
+
+class GroupMessageCreateView(generics.CreateAPIView):
+    serializer_class = GroupMessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return GroupMessage.objects.all()
+
+    def perform_create(self, serializer):
+        group_id = self.kwargs['group_id']
+
+        if not GroupMember.objects.filter(group_id=group_id,user=self.request.user).exists():
+            raise PermissionDenied('Vi ne sostoite v etoy gruppe')
+
+        group = Group.objects.filter(id=group_id).first()
+
+        if group is None:
+            raise NotFound('Group not found')
+
+        serializer.save(user=self.request.user, group=group)
+
+
+class GroupMessageListView(generics.ListAPIView):
+    serializer_class = GroupMessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        group_id = self.kwargs['group_id']
+
+        if not GroupMember.objects.filter(group_id=group_id,user=self.request.user).exists():
+            raise PermissionDenied('Vi ne sostoite v etoy gruppe')
+
+        return GroupMessage.objects.filter(group_id=group_id).order_by('cr_at')
+
+
+class GroupMessageDeleteView(generics.DestroyAPIView):
+    serializer_class = GroupMessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return GroupMessage.objects.filter(user=self.request.user)
+
+
 
 
 

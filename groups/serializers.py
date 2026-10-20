@@ -22,5 +22,11 @@ class GroupMemberRoleSerializer(ModelSerializer):
         model = GroupMember
         fields = ['role']
 
+class GroupMessageSerializer(ModelSerializer):
+    class Meta:
+        model = GroupMessage
+        fields = ['id', 'user', 'group', 'content', 'cr_at']
+        read_only_fields = ['id', 'user', 'group', 'cr_at']
+
 
 
