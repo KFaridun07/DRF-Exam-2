@@ -45,7 +45,7 @@ class ChatDetail(generics.RetrieveAPIView):
 
         user = self.request.user
 
-        return Chat.objects.filter(models.Q(user_1=user) | models.Q(user_2=user))
+        return Chat.objects.filter(Q(user_1=user) | Q(user_2=user))
 
 
 
@@ -61,7 +61,7 @@ class ChatDelete(generics.DestroyAPIView):
 
         user = self.request.user
 
-        return Chat.objects.filter(models.Q(user_1=user) | models.Q(user_2=user))
+        return Chat.objects.filter(Q(user_1=user) | Q(user_2=user))
 
 class MessageCreate(generics.CreateAPIView):
     serializer_class = MessageSerializer

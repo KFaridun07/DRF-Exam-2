@@ -88,11 +88,7 @@ class ProfileListCreateView(generics.ListCreateAPIView):
         profiles = Profile.objects.all()
 
         if search:
-            profiles = profiles.filter(
-                Q(firstname__icontains=search) |
-                Q(lastname__icontains=search) |
-                Q(username__icontains=search)
-            )
+            profiles = profiles.filter(Q(firstname__icontains=search) |Q(lastname__icontains=search) |Q(username__icontains=search))
 
         return profiles
 

@@ -9,3 +9,18 @@ class GroupSerializer(ModelSerializer):
         read_only_fields = ['id']
 
 
+
+class GroupMemberSerializer(ModelSerializer):
+    class Meta:
+        model = GroupMember
+        fields = ['id', 'user', 'group', 'role', 'joining_date']
+        read_only_fields = ['id', 'group', 'role', 'joining_date']
+
+
+class GroupMemberRoleSerializer(ModelSerializer):
+    class Meta:
+        model = GroupMember
+        fields = ['role']
+
+
+
